@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Read-only reference repository (not part of the SEAPEDIA app).
+    "repo/**",
   ]),
 ]);
 

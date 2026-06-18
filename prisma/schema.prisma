@@ -1,0 +1,58 @@
+// SEAPEDIA Prisma schema.
+// Level 1 entities only (User, UserRole, ApplicationReview). Later levels add
+// stores, products, wallet, cart, orders, discounts, delivery, etc.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Active-role candidates. ADMIN is handled separately from the non-admin
+// multi-role set (BUYER, SELLER, DRIVER) per the SEAPEDIA brief.
+enum Role {
+  ADMIN
+  SELLER
+  BUYER
+  DRIVER
+}
+
+model User {
+  id           String     @id @default(cuid())
+  username     String     @unique
+  email        String     @unique
+  passwordHash String
+  // Admin accounts are privileged and provisioned via seed/documented setup.
+  isAdmin      Boolean    @default(false)
+  roles        UserRole[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@map("users")
+}
+
+// A non-admin user may own multiple roles at the same time. The active role is
+// tracked per session (in the JWT), never on the user record.
+model UserRole {
+  id     String @id @default(cuid())
+  userId String
+  role   Role
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, role])
+  @@map("user_roles")
+}
+
+// Public website/experience review (not a product or order review). Guests may
+// submit. Comment is stored as raw text and always rendered as escaped text.
+model ApplicationReview {
+  id        String   @id @default(cuid())
+  name      String
+  rating    Int
+  comment   String
+  createdAt DateTime @default(now())
+
+  @@map("application_reviews")
+}
