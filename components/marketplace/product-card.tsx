@@ -1,48 +1,37 @@
 import Link from "next/link";
-import { Store } from "lucide-react";
 
-import {
-  Card,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { formatIDR } from "@/lib/money";
-import type { DummyProduct } from "@/lib/dummy-data";
+import type { PublicProduct } from "@/lib/product/types";
 
 function ProductThumb({ name }: { name: string }) {
   const initial = name.charAt(0).toUpperCase();
   return (
-    <div className="from-primary/15 to-accent flex aspect-square items-center justify-center rounded-lg bg-gradient-to-br">
-      <span className="text-primary/70 text-5xl font-bold">{initial}</span>
+    <div className="bg-muted flex aspect-square items-center justify-center">
+      <span className="text-muted-foreground text-5xl font-bold">{initial}</span>
     </div>
   );
 }
 
-export function ProductCard({ product }: { product: DummyProduct }) {
+export function ProductCard({ product }: { product: PublicProduct }) {
   return (
-    <Card className="group gap-3 overflow-hidden py-3 transition-shadow hover:shadow-md">
-      <CardContent className="px-3">
-        <Link href={`/products/${product.id}`}>
-          <ProductThumb name={product.name} />
-        </Link>
-      </CardContent>
-      <CardContent className="space-y-2 px-3">
-        <Badge variant="outline" className="text-muted-foreground">
-          {product.category}
-        </Badge>
-        <Link
-          href={`/products/${product.id}`}
-          className="hover:text-primary line-clamp-2 block text-sm font-medium transition-colors"
-        >
-          {product.name}
-        </Link>
-        <p className="text-base font-semibold">{formatIDR(product.price)}</p>
-      </CardContent>
-      <CardFooter className="text-muted-foreground gap-1.5 px-3 text-xs">
-        <Store className="size-3.5" />
-        <span className="truncate">{product.store}</span>
-      </CardFooter>
-    </Card>
+    <Link
+      href={`/products/${product.id}`}
+      className="hover-shadow-hard flex h-full flex-col overflow-hidden rounded-md border bg-card transition-shadow"
+    >
+      <ProductThumb name={product.name} />
+
+      <div className="flex flex-1 flex-col gap-3 border-y p-4">
+        <h2 className="line-clamp-4 text-lg font-medium">{product.name}</h2>
+        <p className="text-muted-foreground text-sm font-medium underline underline-offset-2">
+          {product.store.name}
+        </p>
+      </div>
+
+      <div className="p-4">
+        <div className="border bg-price text-price-foreground w-fit px-2 py-1 text-sm font-medium">
+          {formatIDR(product.price)}
+        </div>
+      </div>
+    </Link>
   );
 }

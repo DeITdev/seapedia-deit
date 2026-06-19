@@ -17,8 +17,18 @@ function createClient() {
   });
 }
 
-export const db = globalForPrisma.prisma ?? createClient();
-
-if (process.env.NODE_ENV !== "production") {
-  globalForPrisma.prisma = db;
+// In dev, hot reload can keep a stale PrismaClient from before a schema change.
+// Recreate when expected models are missing (e.g. after `prisma generate`).
+function getClient() {
+  const existing = globalForPrisma.prisma;
+  if (existing && "store" in existing) {
+    return existing;
+  }
+  const client = createClient();
+  if (process.env.NODE_ENV !== "production") {
+    globalForPrisma.prisma = client;
+  }
+  return client;
 }
+
+export const db = getClient();

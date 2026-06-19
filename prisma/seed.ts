@@ -64,7 +64,58 @@ async function main() {
     await prisma.applicationReview.createMany({ data: reviews });
   }
 
-  console.log(`Seeded ${accounts.length} accounts and ensured demo reviews.`);
+  const seller = await prisma.user.findUnique({ where: { username: "seller1" } });
+  if (seller) {
+    const store = await prisma.store.upsert({
+      where: { sellerId: seller.id },
+      update: { name: "Rumah Kopi Nusantara" },
+      create: { name: "Rumah Kopi Nusantara", sellerId: seller.id },
+    });
+
+    const seedProducts = [
+      {
+        name: "Kopi Arabika Gayo 250g",
+        description:
+          "Single-origin Arabica beans from the Gayo highlands. Medium roast with notes of brown sugar and citrus.",
+        price: 85000,
+        stock: 42,
+      },
+      {
+        name: "Premium Matcha Powder 100g",
+        description:
+          "Ceremonial-grade matcha, stone-ground and vibrant green. Perfect for lattes and baking.",
+        price: 130000,
+        stock: 60,
+      },
+      {
+        name: "Madu Hutan Liar 500ml",
+        description:
+          "Raw wild forest honey harvested sustainably. Unprocessed with a rich, floral aroma.",
+        price: 110000,
+        stock: 50,
+      },
+      {
+        name: "Batik Tulis Pekalongan",
+        description:
+          "Hand-drawn batik fabric, 2 meters. Traditional motifs created by master artisans in Pekalongan.",
+        price: 320000,
+        stock: 12,
+      },
+    ];
+
+    for (const product of seedProducts) {
+      const existing = await prisma.product.findFirst({
+        where: { storeId: store.id, name: product.name },
+      });
+      if (!existing) {
+        await prisma.product.create({
+          data: { ...product, storeId: store.id },
+        });
+      }
+    }
+  }
+
+  console.log(`Seeded ${accounts.length} accounts, demo reviews, and seller1 store/products.`);
 }
 
 main()

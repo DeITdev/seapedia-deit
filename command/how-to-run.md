@@ -227,6 +227,18 @@ npm run dev
 2. Confirm `.env` `DATABASE_URL` and `DIRECT_URL` match your setup.
 3. Re-apply migrations: `npm run db:deploy`.
 
+### `db.store is undefined` / seller page or `/api/products` returns 500 after a schema change
+
+The dev server caches the Prisma client. After adding migrations or running `prisma generate`, restart the dev server:
+
+```bash
+# stop the running next dev process, then:
+npx prisma generate
+npm run db:deploy
+npm run db:seed   # optional, refreshes demo store/products
+npm run dev
+```
+
 ### Reviews empty or login fails
 
 Database may not be seeded:

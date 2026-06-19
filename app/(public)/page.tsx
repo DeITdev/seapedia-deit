@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ProductCard } from "@/components/marketplace/product-card";
 import { ReviewSection } from "@/components/reviews/review-section";
-import { getDummyProducts } from "@/lib/dummy-data";
+import { listPublicProductsSafe } from "@/lib/product/service";
 
 const ROLE_HIGHLIGHTS = [
   {
@@ -36,18 +36,18 @@ const ROLE_HIGHLIGHTS = [
   },
 ];
 
-export default function HomePage() {
-  const featured = getDummyProducts().slice(0, 4);
+export default async function HomePage() {
+  const featured = (await listPublicProductsSafe()).slice(0, 8);
 
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-16 px-4 py-10">
+    <div className="page-shell space-y-16">
       {/* Hero */}
-      <section className="from-primary/10 via-background to-accent/40 rounded-2xl border bg-gradient-to-br p-8 sm:p-12">
-        <div className="max-w-2xl space-y-5">
-          <span className="bg-primary/10 text-primary inline-block rounded-full px-3 py-1 text-xs font-medium">
+      <section className="border bg-card p-8 sm:p-12 lg:p-16">
+        <div className="max-w-3xl space-y-5">
+          <span className="pill-inactive inline-block px-3 py-1 text-xs font-medium">
             A multi-seller marketplace
           </span>
-          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
+          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
             One marketplace for buyers, sellers, and drivers.
           </h1>
           <p className="text-muted-foreground text-lg">
@@ -82,7 +82,7 @@ export default function HomePage() {
           {ROLE_HIGHLIGHTS.map(({ icon: Icon, title, body }) => (
             <Card key={title}>
               <CardContent className="space-y-2">
-                <span className="bg-primary/10 text-primary flex size-10 items-center justify-center rounded-lg">
+                <span className="bg-muted flex size-10 items-center justify-center rounded-lg">
                   <Icon className="size-5" />
                 </span>
                 <h3 className="font-medium">{title}</h3>
@@ -110,10 +110,16 @@ export default function HomePage() {
             </Link>
           </Button>
         </div>
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-          {featured.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
+          {featured.length === 0 ? (
+            <p className="text-muted-foreground col-span-full text-sm">
+              Products will appear here once sellers list them.
+            </p>
+          ) : (
+            featured.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))
+          )}
         </div>
       </section>
 

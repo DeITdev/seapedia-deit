@@ -5,7 +5,7 @@ import { Logo } from "@/components/site/logo";
 export function Footer() {
   return (
     <footer className="border-t">
-      <div className="text-muted-foreground mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-8 text-sm sm:flex-row sm:items-center sm:justify-between">
+      <div className="text-muted-foreground flex w-full flex-col gap-4 px-4 py-8 text-sm sm:flex-row sm:items-center sm:justify-between lg:px-12">
         <div className="space-y-2">
           <Logo />
           <p className="max-w-sm text-xs">

@@ -5,11 +5,12 @@ Update this file whenever the current phase, active feature, or implementation s
 ## Current Phase
 
 - **Foundation + Level 1 — COMPLETE** (public marketplace, multi-role auth with active-role selection, public application reviews, reusable UI + role dashboard shells).
-- Next phase target: **Level 2 — Seller stores and product management** (real products replace the dummy catalog).
+- **Level 2 — COMPLETE** (seller store management, product CRUD, DB-backed public catalog).
+- Next phase target: **Level 3 — Buyer wallet, cart, and checkout**.
 
 ## Current Goal
 
-- Begin Level 2: Seller store creation (unique store name), product CRUD, and replacing the dummy catalog (`lib/dummy-data.ts`) with database-backed products.
+- Begin Level 3: Buyer wallet (dummy top-up), delivery address, cart with single-store rule, and checkout with tax/delivery fees.
 
 ## Completed
 
@@ -25,9 +26,19 @@ Update this file whenever the current phase, active feature, or implementation s
 - Schema (`prisma/schema.prisma`): `User`, `UserRole` (multi-role per non-admin user), `ApplicationReview`, `Role` enum. Initial migration committed at `prisma/migrations/0_init`. `prisma/seed.ts` seeds demo accounts (incl. a multi-role user) and sample reviews.
 - Auth Route Handlers: `POST /api/auth/register`, `/login`, `/logout`, `GET /api/auth/me`, `POST /api/auth/active-role`. Session = signed JWT (HS256) in an httpOnly cookie carrying `userId` + `activeRole` + owned `roles`.
 - RBAC: `proxy.ts` (Next 16's renamed middleware) for coarse auth redirects; server-side enforcement via guards in every protected page (`(dashboard)` layout + per-role pages) and API route. Authorization always follows the server-verified active role.
-- Public pages under `app/(public)`: landing, catalog (dummy data), product detail, sign-in, sign-up, select-role.
+- Public pages under `app/(public)`: landing, catalog, product detail, sign-in, sign-up, select-role.
 - Public application reviews: `GET/POST /api/reviews` + review form (rating picker) and list; comments rendered as escaped text (XSS-safe).
 - Reusable UI: `Navbar` (guest vs logged-in, theme toggle, user menu with role switcher + logout), `Footer`, mobile nav sheet, `ProductCard`, `RoleBadge`, review components, `RoleSelection`, and Admin/Seller/Buyer/Driver dashboard shells with a wallet/earnings placeholder.
+
+### Level 2
+- Schema: `Store` (unique `name`, one per seller via unique `sellerId`) and `Product` (name, description, price as int IDR, stock). Migration at `prisma/migrations/1_level2_stores_products`.
+- Seed: `seller1` gets store **Rumah Kopi Nusantara** with four demo products.
+- Validation: `lib/validation/store.ts`, `lib/validation/product.ts`.
+- Services: `lib/store/service.ts`, `lib/product/service.ts`, `lib/product/types.ts`; `requireSellerStore` in `lib/auth/guards.ts`.
+- Public APIs: `GET /api/products`, `GET /api/products/[productId]`.
+- Seller APIs: `GET/PUT /api/seller/store`, `GET/POST /api/seller/products`, `PATCH/DELETE /api/seller/products/[productId]` — all require active `SELLER` role and ownership checks.
+- Seller UI: `/seller` workspace with links; `/seller/store` (create/update form with duplicate-name error); `/seller/products` (list + delete); `/seller/products/new`, `/seller/products/[id]/edit`.
+- Public catalog wired to DB via `listPublicProductsSafe` / `getPublicProductSafe` (graceful empty state when DB unavailable). Store name shown on cards and product detail. Dummy catalog removed (`lib/dummy-data.ts` deleted).
 
 ## In Progress
 
@@ -35,13 +46,14 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Next Up
 
-- Level 2: Seller `Store` model (unique name), `Product` model, seller product CRUD UI + APIs, and DB-backed catalog/detail pages.
+- Level 3: Buyer wallet, delivery address, cart (single-store), checkout with subtotal/delivery fee/PPN 12%/final total, and basic orders.
 
-## Verification (Foundation + Level 1)
+## Verification (Foundation + Level 1 + Level 2)
 
 - `npm run build` (Turbopack) and `npm run lint` both pass clean.
-- `npx prisma generate` succeeds; initial migration SQL generated offline and committed.
-- **Requires a real Supabase database** to run `npm run db:deploy` (or `db:migrate`) and `npm run db:seed` — fill `.env` with Supabase `DATABASE_URL` + `DIRECT_URL` first. The landing page degrades gracefully (empty review list) when no DB is configured.
+- `npx prisma generate` succeeds; migrations committed through Level 2.
+- Run `npm run db:deploy` and `npm run db:seed` after configuring `.env` — seeds demo accounts, reviews, seller1 store + products.
+- Public pages degrade gracefully (empty catalog/reviews) when no DB is configured.
 
 ## Open Questions
 
@@ -62,3 +74,4 @@ Update this file whenever the current phase, active feature, or implementation s
 - Next.js 16 specifics applied: `cookies()`/`headers()`/`params`/`searchParams` are async; middleware renamed to `proxy.ts` (nodejs runtime); Turbopack + ESLint flat config are default.
 - Prisma 7 specifics applied: connection URLs moved out of `schema.prisma` into `prisma.config.ts`; a driver adapter is required on `PrismaClient`. `dotenv/config` is imported in `prisma.config.ts` so the CLI picks up `.env`.
 - The reference repo under `repo/` is read-only inspiration and is excluded from `tsconfig` and ESLint.
+- Level 2 product fields follow the COMPFEST brief (no category); store info is shown on product detail only, not a separate store page.

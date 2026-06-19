@@ -103,5 +103,5 @@ repo/              Read-only reference project (not part of the app)
 - Authorization is always enforced **server-side** based on the session's
   verified active role (never trusting client-supplied role claims).
 - All money is integer Indonesian Rupiah (IDR) — no floating-point currency math.
-- The Level 1 catalog uses dummy data (`lib/dummy-data.ts`); database-backed
-  products arrive in Level 2.
+- The public catalog is database-backed (Level 2): products from seller stores via
+  `GET /api/products` and Prisma services.

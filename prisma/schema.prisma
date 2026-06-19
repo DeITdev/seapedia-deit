@@ -1,6 +1,6 @@
 // SEAPEDIA Prisma schema.
-// Level 1 entities only (User, UserRole, ApplicationReview). Later levels add
-// stores, products, wallet, cart, orders, discounts, delivery, etc.
+// Level 1: User, UserRole, ApplicationReview.
+// Level 2: Store, Product. Later levels add wallet, cart, orders, etc.
 
 generator client {
   provider = "prisma-client-js"
@@ -27,6 +27,7 @@ model User {
   // Admin accounts are privileged and provisioned via seed/documented setup.
   isAdmin      Boolean    @default(false)
   roles        UserRole[]
+  store        Store?
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 
@@ -55,4 +56,31 @@ model ApplicationReview {
   createdAt DateTime @default(now())
 
   @@map("application_reviews")
+}
+
+// One store per Seller; store name is globally unique across SEAPEDIA.
+model Store {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  sellerId  String    @unique
+  seller    User      @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  products  Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("stores")
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  price       Int
+  stock       Int
+  storeId     String
+  store       Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("products")
 }
