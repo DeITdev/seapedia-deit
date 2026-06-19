@@ -5,9 +5,9 @@ A multi-role marketplace (COMPFEST 18 Software Engineering Academy task) connect
 Router, Route Handlers, Prisma + Supabase PostgreSQL, custom JWT/bcrypt auth, and
 shadcn/ui + Tailwind CSS v4.
 
-This repository currently implements **Foundation + Level 1**: the public
-marketplace, multi-role authentication with per-session active-role selection,
-public application reviews, and reusable UI with role dashboard shells.
+This repository currently implements **Foundation through Level 3**: the public
+marketplace, multi-role authentication, seller store/product management, buyer
+wallet, cart (single-store), checkout with PPN 12%, and order history.
 
 ## Tech stack
 
@@ -69,6 +69,19 @@ public application reviews, and reusable UI with role dashboard shells.
 `multi` owns several roles, so after login it must choose an **active role**
 before reaching a dashboard, and can switch roles from the account menu.
 
+`buyer1` is seeded with **Rp500.000** wallet balance and a Jakarta delivery address
+for an end-to-end checkout demo against `seller1`'s store.
+
+## Business rules (Level 3)
+
+- **Single-store cart:** one cart may only contain products from **one store**.
+  Adding from a different store is blocked (409) and the UI offers to clear the
+  cart first. Enforced in `lib/cart/service.ts` and shown on cart/product pages.
+- **Checkout totals:** subtotal → discount (0 at Level 3) → PPN 12% on taxable
+  base → delivery fee (not taxed) → final total. See `context/knowledge.md`.
+- **Buyer address:** one saved address per buyer (Level 3); snapshotted onto each
+  order at checkout. Multiple addresses planned for a later level.
+
 ## Scripts
 
 | Script              | Description                                  |
@@ -89,7 +102,7 @@ before reaching a dashboard, and can switch roles from the account menu.
 app/
   (public)/        Guest-facing pages: landing, catalog, product, auth, select-role
   (dashboard)/     Role-protected workspaces: dashboard, admin, seller, buyer, driver
-  api/             Route Handlers (auth, reviews)
+  api/             Route Handlers (auth, reviews, seller, buyer cart/checkout/orders)
 components/        UI primitives (ui/), site chrome, marketplace, reviews, dashboard
 lib/               auth, validation, db client, money, api helpers, constants
 prisma/            schema.prisma, migrations, seed.ts

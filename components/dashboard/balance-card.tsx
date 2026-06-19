@@ -6,7 +6,7 @@ import { formatIDR } from "@/lib/money";
 export function BalanceCard({
   label = "Wallet balance",
   amount = 0,
-  note = "Wallet & payments arrive in a later level.",
+  note,
 }: {
   label?: string;
   amount?: number;
@@ -21,7 +21,7 @@ export function BalanceCard({
         <div>
           <p className="text-muted-foreground text-sm">{label}</p>
           <p className="text-2xl font-semibold">{formatIDR(amount)}</p>
-          <p className="text-muted-foreground text-xs">{note}</p>
+          {note && <p className="text-muted-foreground text-xs">{note}</p>}
         </div>
       </CardContent>
     </Card>

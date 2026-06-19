@@ -1,6 +1,7 @@
 // SEAPEDIA Prisma schema.
 // Level 1: User, UserRole, ApplicationReview.
-// Level 2: Store, Product. Later levels add wallet, cart, orders, etc.
+// Level 2: Store, Product.
+// Level 3: Wallet, BuyerAddress, Cart, Order.
 
 generator client {
   provider = "prisma-client-js"
@@ -10,8 +11,6 @@ datasource db {
   provider = "postgresql"
 }
 
-// Active-role candidates. ADMIN is handled separately from the non-admin
-// multi-role set (BUYER, SELLER, DRIVER) per the SEAPEDIA brief.
 enum Role {
   ADMIN
   SELLER
@@ -19,23 +18,44 @@ enum Role {
   DRIVER
 }
 
+enum DeliveryMethod {
+  INSTANT
+  NEXT_DAY
+  REGULAR
+}
+
+enum OrderStatus {
+  SEDANG_DIKEMAS
+  MENUNGGU_PENGIRIM
+  SEDANG_DIKIRIM
+  PESANAN_SELESAI
+  DIKEMBALIKAN
+}
+
+enum WalletTransactionType {
+  TOP_UP
+  CHECKOUT
+  REFUND
+}
+
 model User {
-  id           String     @id @default(cuid())
-  username     String     @unique
-  email        String     @unique
+  id           String        @id @default(cuid())
+  username     String        @unique
+  email        String        @unique
   passwordHash String
-  // Admin accounts are privileged and provisioned via seed/documented setup.
-  isAdmin      Boolean    @default(false)
+  isAdmin      Boolean       @default(false)
   roles        UserRole[]
   store        Store?
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  wallet       Wallet?
+  address      BuyerAddress?
+  cart         Cart?
+  buyerOrders  Order[]       @relation("BuyerOrders")
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 
   @@map("users")
 }
 
-// A non-admin user may own multiple roles at the same time. The active role is
-// tracked per session (in the JWT), never on the user record.
 model UserRole {
   id     String @id @default(cuid())
   userId String
@@ -46,8 +66,6 @@ model UserRole {
   @@map("user_roles")
 }
 
-// Public website/experience review (not a product or order review). Guests may
-// submit. Comment is stored as raw text and always rendered as escaped text.
 model ApplicationReview {
   id        String   @id @default(cuid())
   name      String
@@ -58,13 +76,14 @@ model ApplicationReview {
   @@map("application_reviews")
 }
 
-// One store per Seller; store name is globally unique across SEAPEDIA.
 model Store {
   id        String    @id @default(cuid())
   name      String    @unique
   sellerId  String    @unique
   seller    User      @relation(fields: [sellerId], references: [id], onDelete: Cascade)
   products  Product[]
+  carts     Cart[]
+  orders    Order[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 
@@ -72,15 +91,136 @@ model Store {
 }
 
 model Product {
-  id          String   @id @default(cuid())
+  id          String     @id @default(cuid())
   name        String
   description String
   price       Int
   stock       Int
   storeId     String
-  store       Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  store       Store      @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  cartItems   CartItem[]
+  orderItems  OrderItem[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 
   @@map("products")
+}
+
+model Wallet {
+  id           String              @id @default(cuid())
+  userId       String              @unique
+  user         User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  balance      Int                 @default(0)
+  transactions WalletTransaction[]
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+
+  @@map("wallets")
+}
+
+model WalletTransaction {
+  id        String                @id @default(cuid())
+  walletId  String
+  wallet    Wallet                @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  type      WalletTransactionType
+  amount    Int
+  orderId   String?
+  order     Order?                @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  note      String?
+  createdAt DateTime              @default(now())
+
+  @@map("wallet_transactions")
+}
+
+// One address per buyer for Level 3. userId unique can be relaxed later for an address book.
+model BuyerAddress {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipientName String
+  phone         String
+  street        String
+  city          String
+  province      String
+  postalCode    String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("buyer_addresses")
+}
+
+model Cart {
+  id        String     @id @default(cuid())
+  userId    String     @unique
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  storeId   String?
+  store     Store?     @relation(fields: [storeId], references: [id], onDelete: SetNull)
+  items     CartItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@map("carts")
+}
+
+model CartItem {
+  id        String  @id @default(cuid())
+  cartId    String
+  cart      Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  quantity  Int
+
+  @@unique([cartId, productId])
+  @@map("cart_items")
+}
+
+model Order {
+  id             String               @id @default(cuid())
+  buyerId        String
+  buyer          User                 @relation("BuyerOrders", fields: [buyerId], references: [id], onDelete: Cascade)
+  storeId        String
+  store          Store                @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  deliveryMethod DeliveryMethod
+  recipientName  String
+  phone          String
+  street         String
+  city           String
+  province       String
+  postalCode     String
+  subtotal       Int
+  discount       Int                  @default(0)
+  deliveryFee    Int
+  ppn            Int
+  finalTotal     Int
+  status         OrderStatus          @default(SEDANG_DIKEMAS)
+  items          OrderItem[]
+  statusHistory  OrderStatusHistory[]
+  walletTxns     WalletTransaction[]
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id          String  @id @default(cuid())
+  orderId     String
+  order       Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId   String
+  product     Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+  productName String
+  unitPrice   Int
+  quantity    Int
+
+  @@map("order_items")
+}
+
+model OrderStatusHistory {
+  id        String      @id @default(cuid())
+  orderId   String
+  order     Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  status    OrderStatus
+  createdAt DateTime    @default(now())
+
+  @@map("order_status_history")
 }

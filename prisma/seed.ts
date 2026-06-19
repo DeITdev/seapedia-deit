@@ -115,7 +115,62 @@ async function main() {
     }
   }
 
-  console.log(`Seeded ${accounts.length} accounts, demo reviews, and seller1 store/products.`);
+  const buyer = await prisma.user.findUnique({ where: { username: "buyer1" } });
+  if (buyer) {
+    const wallet = await prisma.wallet.upsert({
+      where: { userId: buyer.id },
+      update: { balance: 500000 },
+      create: { userId: buyer.id, balance: 500000 },
+    });
+
+    const txnCount = await prisma.walletTransaction.count({ where: { walletId: wallet.id } });
+    if (txnCount === 0) {
+      await prisma.walletTransaction.create({
+        data: {
+          walletId: wallet.id,
+          type: "TOP_UP",
+          amount: 500000,
+          note: "Initial seed top-up",
+        },
+      });
+    }
+
+    await prisma.buyerAddress.upsert({
+      where: { userId: buyer.id },
+      update: {},
+      create: {
+        userId: buyer.id,
+        recipientName: "Budi Santoso",
+        phone: "081234567890",
+        street: "Jl. Sudirman No. 45",
+        city: "Jakarta Selatan",
+        province: "DKI Jakarta",
+        postalCode: "12190",
+      },
+    });
+
+    await prisma.cart.upsert({
+      where: { userId: buyer.id },
+      update: {},
+      create: { userId: buyer.id },
+    });
+  }
+
+  const multi = await prisma.user.findUnique({ where: { username: "multi" } });
+  if (multi) {
+    await prisma.wallet.upsert({
+      where: { userId: multi.id },
+      update: {},
+      create: { userId: multi.id, balance: 0 },
+    });
+    await prisma.cart.upsert({
+      where: { userId: multi.id },
+      update: {},
+      create: { userId: multi.id },
+    });
+  }
+
+  console.log(`Seeded ${accounts.length} accounts, demo reviews, seller1 store/products, buyer1 wallet/address.`);
 }
 
 main()

@@ -66,16 +66,18 @@ export default async function SellerPage() {
           </CardContent>
         </Card>
 
-        <Card className="opacity-60">
+        <Card>
           <CardHeader>
             <div className="bg-primary/10 text-primary flex size-10 items-center justify-center rounded-lg">
               <ClipboardList className="size-5" />
             </div>
             <CardTitle className="mt-2 text-base">Incoming orders</CardTitle>
-            <CardDescription>Confirm and process orders from buyers.</CardDescription>
+            <CardDescription>View orders from buyers at your store.</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground text-xs">Coming in Level 4</p>
+            <Button asChild variant="outline" size="sm" disabled={!store}>
+              <Link href="/seller/orders">View orders</Link>
+            </Button>
           </CardContent>
         </Card>
 

@@ -107,6 +107,12 @@ Only orders that were successfully checked out and paid are eligible for refund.
 
 SEAPEDIA is a multi-seller marketplace, so a cart holds products from **one store only**. This keeps one order tied to one Seller (clean processing, income, and delivery ownership). If a Buyer adds a product from a different store, the system prevents it and prompts the Buyer to clear the cart first. This rule is enforced in the backend, shown in the UI, and documented in the README.
 
+## Buyer Delivery Address (decision)
+
+- **Level 3:** one delivery address per buyer (`BuyerAddress.userId` is unique). Saved at `/buyer/address` and reused for every checkout.
+- **At checkout:** address fields are **snapshotted** onto the `Order` record so past orders stay accurate if the buyer edits their profile later.
+- **Future upgrade:** multiple saved addresses with a default picker at checkout. Migration path: drop the `userId` unique constraint, add `isDefault`, extend `/api/buyer/address` to address-book CRUD. Orders already snapshot address — no change needed to order history.
+
 ## Seed Data / Demo Accounts
 
 The Prisma seed script provisions demonstrable accounts and discount data. Suggested set (final credentials documented in the README):

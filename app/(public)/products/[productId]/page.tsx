@@ -2,8 +2,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChevronLeft, Store } from "lucide-react";
 
+import { AddToCartButton } from "@/components/buyer/add-to-cart-button";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { getServerSession } from "@/lib/auth/session";
 import { formatIDR } from "@/lib/money";
 import { getPublicProductSafe } from "@/lib/product/service";
 
@@ -15,6 +17,10 @@ export default async function ProductDetailPage({
   const { productId } = await params;
   const product = await getPublicProductSafe(productId);
   if (!product) notFound();
+
+  const session = await getServerSession();
+  const isAuthenticated = !!session;
+  const isActiveBuyer = session?.activeRole === "BUYER";
 
   const initial = product.name.charAt(0).toUpperCase();
 
@@ -61,12 +67,15 @@ export default async function ProductDetailPage({
           </p>
 
           <div className="space-y-2">
-            <Button size="lg" className="w-full sm:w-auto" disabled>
-              Add to cart (coming soon)
-            </Button>
+            <AddToCartButton
+              productId={product.id}
+              productName={product.name}
+              stock={product.stock}
+              isAuthenticated={isAuthenticated}
+              isActiveBuyer={isActiveBuyer}
+            />
             <p className="text-muted-foreground text-xs">
-              Cart &amp; checkout arrive in a later level. Browsing is open to
-              everyone.
+              One cart per store — checkout from a single seller at a time.
             </p>
           </div>
         </div>
