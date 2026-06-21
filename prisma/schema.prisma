@@ -2,6 +2,7 @@
 // Level 1: User, UserRole, ApplicationReview.
 // Level 2: Store, Product.
 // Level 3: Wallet, BuyerAddress, Cart, Order.
+// Level 4: Voucher, Promo, order discount breakdown.
 
 generator client {
   provider = "prisma-client-js"
@@ -36,6 +37,11 @@ enum WalletTransactionType {
   TOP_UP
   CHECKOUT
   REFUND
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED
 }
 
 model User {
@@ -174,30 +180,67 @@ model CartItem {
   @@map("cart_items")
 }
 
+model Voucher {
+  id             String       @id @default(cuid())
+  code           String       @unique
+  discountType   DiscountType
+  discountValue  Int
+  maxDiscount    Int?
+  remainingUsage Int
+  expiresAt      DateTime
+  orders         Order[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@map("vouchers")
+}
+
+model Promo {
+  id            String       @id @default(cuid())
+  code          String       @unique
+  discountType  DiscountType
+  discountValue Int
+  maxDiscount   Int?
+  expiresAt     DateTime
+  orders        Order[]
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@map("promos")
+}
+
 model Order {
-  id             String               @id @default(cuid())
-  buyerId        String
-  buyer          User                 @relation("BuyerOrders", fields: [buyerId], references: [id], onDelete: Cascade)
-  storeId        String
-  store          Store                @relation(fields: [storeId], references: [id], onDelete: Cascade)
-  deliveryMethod DeliveryMethod
-  recipientName  String
-  phone          String
-  street         String
-  city           String
-  province       String
-  postalCode     String
-  subtotal       Int
-  discount       Int                  @default(0)
-  deliveryFee    Int
-  ppn            Int
-  finalTotal     Int
-  status         OrderStatus          @default(SEDANG_DIKEMAS)
-  items          OrderItem[]
-  statusHistory  OrderStatusHistory[]
-  walletTxns     WalletTransaction[]
-  createdAt      DateTime             @default(now())
-  updatedAt      DateTime             @updatedAt
+  id              String               @id @default(cuid())
+  buyerId         String
+  buyer           User                 @relation("BuyerOrders", fields: [buyerId], references: [id], onDelete: Cascade)
+  storeId         String
+  store           Store                @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  deliveryMethod  DeliveryMethod
+  recipientName   String
+  phone           String
+  street          String
+  city            String
+  province        String
+  postalCode      String
+  subtotal        Int
+  discount        Int                  @default(0)
+  voucherDiscount Int                  @default(0)
+  promoDiscount   Int                  @default(0)
+  voucherId       String?
+  voucher         Voucher?             @relation(fields: [voucherId], references: [id], onDelete: SetNull)
+  voucherCode     String?
+  promoId         String?
+  promo           Promo?               @relation(fields: [promoId], references: [id], onDelete: SetNull)
+  promoCode       String?
+  deliveryFee     Int
+  ppn             Int
+  finalTotal      Int
+  status          OrderStatus          @default(SEDANG_DIKEMAS)
+  items           OrderItem[]
+  statusHistory   OrderStatusHistory[]
+  walletTxns      WalletTransaction[]
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
 
   @@map("orders")
 }

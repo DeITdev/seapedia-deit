@@ -6,37 +6,40 @@ import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { CheckoutSummaryCard } from "@/components/buyer/checkout-summary";
 import { OrderStatusBadge } from "@/components/buyer/order-status-badge";
 import { OrderStatusTimeline } from "@/components/buyer/order-status-timeline";
+import { ProcessOrderButton } from "@/components/seller/process-order-button";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { requirePageRole } from "@/lib/auth/page-guards";
 import { DELIVERY_METHOD_LABELS } from "@/lib/constants/delivery";
-import { getBuyerOrderDetail } from "@/lib/order/service";
+import { getSellerOrderDetail } from "@/lib/order/service";
 import { formatIDR } from "@/lib/money";
 
-export default async function BuyerOrderDetailPage({
+export default async function SellerOrderDetailPage({
   params,
 }: {
   params: Promise<{ orderId: string }>;
 }) {
-  const session = await requirePageRole("BUYER");
+  const session = await requirePageRole("SELLER");
   const { orderId } = await params;
 
   let order;
   try {
-    order = await getBuyerOrderDetail(session.userId, orderId);
+    order = await getSellerOrderDetail(session.userId, orderId);
   } catch {
     notFound();
   }
 
+  const canProcess = order.status === "SEDANG_DIKEMAS";
+
   return (
     <DashboardShell
       title={`Order #${order.id.slice(-8)}`}
-      description={`From ${order.storeName}`}
-      role="BUYER"
+      description={`From @${order.buyerUsername}`}
+      role="SELLER"
     >
       <Button asChild variant="ghost" size="sm" className="-ml-2 w-fit">
-        <Link href="/buyer/orders">
+        <Link href="/seller/orders">
           <ChevronLeft className="size-4" /> Back to orders
         </Link>
       </Button>
@@ -93,7 +96,7 @@ export default async function BuyerOrderDetailPage({
             <CardHeader>
               <CardTitle className="text-base">Payment summary</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
               <CheckoutSummaryCard
                 summary={{
                   subtotal: order.subtotal,
@@ -112,6 +115,7 @@ export default async function BuyerOrderDetailPage({
                 canCheckout
                 showWallet={false}
               />
+              {canProcess && <ProcessOrderButton orderId={order.id} />}
             </CardContent>
           </Card>
         </div>

@@ -1,0 +1,1335 @@
+[
+  {
+    "id": "TC001",
+    "title": "Browse products and open a product detail as a guest",
+    "description": "A guest shopper can browse the public catalog and open a product detail page to see store, pricing, and stock information without logging in.",
+    "category": "Public marketplace browse-to-product-detail",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /products"
+      },
+      {
+        "type": "action",
+        "description": "Open a product from the catalog"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the product detail page is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify store, pricing, and stock information are visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC002",
+    "title": "Place a checkout order with wallet payment",
+    "description": "A buyer can review checkout totals, pay with wallet, and create an order that starts in the packing state.",
+    "category": "Checkout with tax, delivery, and discounts",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the buyer credentials"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /buyer/checkout"
+      },
+      {
+        "type": "action",
+        "description": "Choose a delivery method"
+      },
+      {
+        "type": "action",
+        "description": "Submit the checkout"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the order is created"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the order status shows the packing state"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC003",
+    "title": "Browse the public catalog and open a product detail page",
+    "description": "This verifies that a guest shopper can browse public products and open a product detail page with store information visible.",
+    "category": "Public marketplace catalog",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to browse the public product catalog"
+      },
+      {
+        "type": "action",
+        "description": "Click a product listing"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify product details are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify store information is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC004",
+    "title": "Process an incoming seller order",
+    "description": "This verifies that a seller can open an eligible incoming order and move it from packing to waiting for pickup.",
+    "category": "Seller order processing and income reports",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login credentials for the seller role"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to the seller orders page"
+      },
+      {
+        "type": "action",
+        "description": "Open an incoming order that is ready for processing"
+      },
+      {
+        "type": "action",
+        "description": "Process the order"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the order status changes to waiting for pickup"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC005",
+    "title": "Sign in and reach the role selection page",
+    "description": "This verifies that a registered user can sign in and is routed to role selection when multiple roles are available.",
+    "category": "Authentication and multi-role sessions",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /sign-in"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the role selection page is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC006",
+    "title": "Add products from one store to the cart",
+    "description": "A buyer can add products from the same store and see them grouped together in the cart.",
+    "category": "Shopping cart with single-store rule",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login credentials with {{LOGIN_USER}} and {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to browse products"
+      },
+      {
+        "type": "action",
+        "description": "Open a product from one store"
+      },
+      {
+        "type": "action",
+        "description": "Add the product to the cart"
+      },
+      {
+        "type": "action",
+        "description": "Open the cart"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the item is added to the cart"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify cart items from the same store are grouped together"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC007",
+    "title": "Register a new account successfully",
+    "description": "This verifies that a new user can create an account and see an account creation confirmation.",
+    "category": "Authentication and multi-role sessions",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /sign-up"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the registration details"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an account creation confirmation is visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC008",
+    "title": "Open the shared dashboard shell for a signed-in role",
+    "description": "This verifies that a signed-in user lands in the shared dashboard shell and can see role-specific dashboard content.",
+    "category": "Role dashboards and shared UI shell",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login credentials for the buyer role"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to the dashboard"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the shared dashboard shell is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify role-specific dashboard content is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC009",
+    "title": "Sign in and land on the active role dashboard",
+    "description": "This verifies that a registered user can sign in and reach the dashboard for their active role without being routed to role selection.",
+    "category": "Authentication and multi-role sessions",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /sign-in"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the active role dashboard is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC010",
+    "title": "Select an active role and enter the matching dashboard",
+    "description": "This verifies that a signed-in user can choose an available role and land in the correct dashboard shell.",
+    "category": "Authentication and multi-role sessions",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /select-role"
+      },
+      {
+        "type": "action",
+        "description": "Choose one available role"
+      },
+      {
+        "type": "action",
+        "description": "Continue into the selected role"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the matching dashboard is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the role-specific navigation shell is visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC011",
+    "title": "Top up buyer wallet",
+    "description": "A buyer can add funds and see the wallet balance increase with the transaction recorded in history.",
+    "category": "Buyer wallet and address",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login credentials with {{LOGIN_USER}} and {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open the buyer wallet"
+      },
+      {
+        "type": "action",
+        "description": "Enter a valid top-up amount"
+      },
+      {
+        "type": "action",
+        "description": "Submit the top-up"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the wallet balance increases"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the top-up transaction appears in history"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC012",
+    "title": "Browse, filter, and open a product from the product catalog",
+    "description": "This verifies that a guest shopper can refine the catalog and open a product card to see pricing, stock, and store details.",
+    "category": "Public marketplace catalog",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /products"
+      },
+      {
+        "type": "action",
+        "description": "Apply a catalog filter"
+      },
+      {
+        "type": "action",
+        "description": "Click a product card"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify product pricing is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify stock information is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify store details are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC013",
+    "title": "Save a buyer delivery address",
+    "description": "A buyer can store delivery address details and see the saved address displayed afterward.",
+    "category": "Buyer wallet and address",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login credentials with {{LOGIN_USER}} and {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open the buyer address page"
+      },
+      {
+        "type": "action",
+        "description": "Enter valid delivery address details"
+      },
+      {
+        "type": "action",
+        "description": "Save the address"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the stored address is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the address is available for checkout"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC014",
+    "title": "See checkout totals update when the delivery method changes",
+    "description": "A buyer can change delivery methods in checkout and see the delivery fee and final total update before placing the order.",
+    "category": "Checkout with tax, delivery, and discounts",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the buyer credentials"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /buyer/checkout"
+      },
+      {
+        "type": "action",
+        "description": "Choose a delivery method"
+      },
+      {
+        "type": "action",
+        "description": "Change to a different delivery method"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the delivery fee is updated"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the final total is updated"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC015",
+    "title": "View buyer wallet readiness for checkout",
+    "description": "A buyer can review wallet balance and transaction history to confirm available funds for checkout.",
+    "category": "Buyer wallet and address",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login credentials with {{LOGIN_USER}} and {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open the buyer wallet"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the wallet balance is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the transaction history is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC016",
+    "title": "Review order history and open an order detail",
+    "description": "A buyer can browse past orders and open one to see its timeline, fees, discounts, and final total.",
+    "category": "Buyer orders and spending reports",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the buyer credentials"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /buyer/orders"
+      },
+      {
+        "type": "action",
+        "description": "Open an order from the history list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the order detail page is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the order timeline and price breakdown are visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC017",
+    "title": "Add a product to the seller catalog",
+    "description": "A seller can create a product and see it appear in the seller product list and public catalog.",
+    "category": "Seller store and product management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login credentials with {{LOGIN_USER}} and {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open new product creation"
+      },
+      {
+        "type": "action",
+        "description": "Enter valid product details"
+      },
+      {
+        "type": "action",
+        "description": "Save the product"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the product appears in the seller product list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the product is visible in the public catalog"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC018",
+    "title": "Apply a voucher at checkout and see the discount reflected",
+    "description": "A buyer can enter a voucher during checkout and see the discounted total before confirming the order.",
+    "category": "Voucher and promo discounts",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the buyer credentials"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /buyer/checkout"
+      },
+      {
+        "type": "action",
+        "description": "Enter a voucher code"
+      },
+      {
+        "type": "action",
+        "description": "Review the checkout summary"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a discount is reflected in the order summary"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the final total is lower than the subtotal"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC019",
+    "title": "View seller income summary",
+    "description": "This verifies that a seller can open the dashboard and review income summary information for processed orders.",
+    "category": "Seller order processing and income reports",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login credentials for the seller role"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to the seller dashboard"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the income summary is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify revenue totals are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC020",
+    "title": "Continue browsing from a product detail page",
+    "description": "This verifies that a guest shopper can open a product detail page and return to the catalog to continue browsing.",
+    "category": "Public marketplace catalog",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /products"
+      },
+      {
+        "type": "action",
+        "description": "Click a product card"
+      },
+      {
+        "type": "action",
+        "description": "Return to the product catalog"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the public product catalog is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify browsing can continue"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC021",
+    "title": "Update cart quantities and remove items",
+    "description": "A buyer can change item quantity and remove items while the cart totals update accordingly.",
+    "category": "Shopping cart with single-store rule",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login credentials with {{LOGIN_USER}} and {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open the buyer cart"
+      },
+      {
+        "type": "action",
+        "description": "Change an item quantity"
+      },
+      {
+        "type": "action",
+        "description": "Verify the cart totals update"
+      },
+      {
+        "type": "action",
+        "description": "Remove an item"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the cart summary updates"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the item is removed from the cart"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC022",
+    "title": "Apply a promo at checkout and see the discount reflected",
+    "description": "A buyer can enter a promo during checkout and see the discounted total before confirming the order.",
+    "category": "Voucher and promo discounts",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the buyer credentials"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /buyer/checkout"
+      },
+      {
+        "type": "action",
+        "description": "Enter a promo code"
+      },
+      {
+        "type": "action",
+        "description": "Review the checkout summary"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a discount is reflected in the order summary"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the final total is lower than the subtotal"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC023",
+    "title": "Create a seller store",
+    "description": "A seller can save a new store profile and see the store information displayed afterward.",
+    "category": "Seller store and product management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login credentials with {{LOGIN_USER}} and {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open seller store management"
+      },
+      {
+        "type": "action",
+        "description": "Enter valid store details"
+      },
+      {
+        "type": "action",
+        "description": "Save the store profile"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the store information is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the store setup is complete"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC024",
+    "title": "Review seller order details and timeline",
+    "description": "This verifies that a seller can open an order detail view and review the order timeline and item summary.",
+    "category": "Seller order processing and income reports",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login credentials for the seller role"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to the seller orders page"
+      },
+      {
+        "type": "action",
+        "description": "Open an order detail view"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the order timeline is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the ordered items summary is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC025",
+    "title": "Apply both eligible discounts together in checkout",
+    "description": "A buyer can enter both an allowed voucher and promo and see both discounts reflected in the final total.",
+    "category": "Voucher and promo discounts",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the buyer credentials"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /buyer/checkout"
+      },
+      {
+        "type": "action",
+        "description": "Enter a voucher code"
+      },
+      {
+        "type": "action",
+        "description": "Enter a promo code"
+      },
+      {
+        "type": "action",
+        "description": "Review the checkout summary"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify both discounts are reflected in the order summary"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the final total is updated accordingly"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC026",
+    "title": "Open the seller dashboard and shared navigation",
+    "description": "This verifies that a seller can open the seller dashboard summary and use the shared navigation context for store, product, and order views.",
+    "category": "Role dashboards and shared UI shell",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login credentials for the seller role"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to the seller dashboard"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the seller dashboard summary is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the shared navigation is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC027",
+    "title": "Open the buyer dashboard and shared navigation",
+    "description": "This verifies that a buyer can open the buyer dashboard summary and use the shared navigation context for related buyer pages.",
+    "category": "Role dashboards and shared UI shell",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login credentials for the buyer role"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to the buyer dashboard"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the buyer dashboard summary is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the shared navigation is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC028",
+    "title": "Update an existing product",
+    "description": "A seller can change product details or stock and see the updated product in the list.",
+    "category": "Seller store and product management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login credentials with {{LOGIN_USER}} and {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open the seller product list"
+      },
+      {
+        "type": "action",
+        "description": "Open an existing product for editing"
+      },
+      {
+        "type": "action",
+        "description": "Change the product details or stock"
+      },
+      {
+        "type": "action",
+        "description": "Save the changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated product is shown in the seller product list"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC029",
+    "title": "Handle cart store conflict",
+    "description": "A buyer can see a store conflict warning when adding a product from another store and clear the cart to continue.",
+    "category": "Shopping cart with single-store rule",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login credentials with {{LOGIN_USER}} and {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to browse products"
+      },
+      {
+        "type": "action",
+        "description": "Open a product from one store"
+      },
+      {
+        "type": "action",
+        "description": "Add the product to the cart"
+      },
+      {
+        "type": "action",
+        "description": "Open a product from a different store"
+      },
+      {
+        "type": "action",
+        "description": "Try to add the product to the cart"
+      },
+      {
+        "type": "action",
+        "description": "Clear the cart"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a store conflict warning is shown"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the cart is cleared so the new store can be used"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC030",
+    "title": "Open the admin dashboard and shared navigation",
+    "description": "This verifies that an admin can open the admin dashboard summary and use the shared navigation context for monitoring views.",
+    "category": "Role dashboards and shared UI shell",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login credentials for the admin role"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to the admin dashboard"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the admin dashboard summary is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the shared navigation is displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC031",
+    "title": "View spending summary from the buyer dashboard",
+    "description": "A buyer can open the dashboard and see their spending summary alongside recent order activity.",
+    "category": "Buyer orders and spending reports",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the buyer credentials"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to the buyer dashboard"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the spending summary is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify recent order activity is displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC032",
+    "title": "Open the driver dashboard and shared navigation",
+    "description": "This verifies that a driver can open the driver dashboard summary and use the shared navigation context for delivery workflow entry points.",
+    "category": "Role dashboards and shared UI shell",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login credentials for the driver role"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to the driver dashboard"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the driver dashboard summary is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the shared navigation is displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC033",
+    "title": "Sign out and return to the public experience",
+    "description": "This verifies that an authenticated user can sign out and return to the public marketplace experience.",
+    "category": "Authentication and multi-role sessions",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /sign-in"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "action",
+        "description": "Sign out from the authenticated session"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the public experience is displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC034",
+    "title": "Delete a seller product",
+    "description": "A seller can remove a product and see it disappear from the seller list.",
+    "category": "Seller store and product management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login credentials with {{LOGIN_USER}} and {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open the seller product list"
+      },
+      {
+        "type": "action",
+        "description": "Select a product to remove"
+      },
+      {
+        "type": "action",
+        "description": "Confirm the deletion"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the product is removed from the seller product list"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC035",
+    "title": "Submit a public app review and see it listed",
+    "description": "This verifies that a guest can submit a public review and see the new testimonial appear in the public list.",
+    "category": "Application reviews",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Open the review section"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the name field with a valid display name"
+      },
+      {
+        "type": "action",
+        "description": "Select a star rating"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the comment field with a short review"
+      },
+      {
+        "type": "action",
+        "description": "Submit the review"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the submitted review is visible in the public list"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC036",
+    "title": "Block checkout when wallet balance is too low",
+    "description": "A buyer with an insufficient wallet balance is prevented from placing an order in checkout.",
+    "category": "Checkout with tax, delivery, and discounts",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the buyer credentials"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /buyer/checkout"
+      },
+      {
+        "type": "action",
+        "description": "Review the checkout summary"
+      },
+      {
+        "type": "action",
+        "description": "Submit the checkout"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the checkout is blocked"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a balance validation message is visible"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC037",
+    "title": "Browse existing public reviews",
+    "description": "This verifies that a guest can view submitted testimonials and read their ratings and comments on the public landing page.",
+    "category": "Application reviews",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Open the review section"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify submitted testimonials are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify ratings and comments are visible"
+      }
+    ],
+    "priority": "Low"
+  }
+]

@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { CheckoutSummaryCard } from "@/components/buyer/checkout-summary";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -55,31 +56,50 @@ export function CheckoutForm({
   const [deliveryMethod, setDeliveryMethod] = React.useState<DeliveryMethod>(
     initialPreview.summary.deliveryMethod,
   );
+  const [voucherCode, setVoucherCode] = React.useState("");
+  const [promoCode, setPromoCode] = React.useState("");
   const [preview, setPreview] = React.useState(initialPreview);
   const [loading, setLoading] = React.useState(false);
   const [confirming, setConfirming] = React.useState(false);
 
-  async function fetchPreview(method: DeliveryMethod) {
-    setLoading(true);
-    const res = await fetch("/api/buyer/checkout/preview", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ deliveryMethod: method }),
-    });
-    const data = await res.json();
-    setLoading(false);
+  const fetchPreview = React.useCallback(
+    async (
+      method: DeliveryMethod,
+      voucher?: string,
+      promo?: string,
+    ) => {
+      setLoading(true);
+      const res = await fetch("/api/buyer/checkout/preview", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          deliveryMethod: method,
+          voucherCode: voucher?.trim() || undefined,
+          promoCode: promo?.trim() || undefined,
+        }),
+      });
+      const data = await res.json();
+      setLoading(false);
 
-    if (!res.ok) {
-      toast.error(data?.error ?? "Failed to load checkout preview.");
-      return;
-    }
+      if (!res.ok) {
+        toast.error(data?.error ?? "Failed to load checkout preview.");
+        return;
+      }
 
-    setPreview(data.data.preview);
-  }
+      setPreview(data.data.preview);
+    },
+    [],
+  );
+
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchPreview(deliveryMethod, voucherCode, promoCode);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [deliveryMethod, voucherCode, promoCode, fetchPreview]);
 
   function onMethodChange(method: DeliveryMethod) {
     setDeliveryMethod(method);
-    fetchPreview(method);
   }
 
   async function confirmCheckout() {
@@ -87,7 +107,11 @@ export function CheckoutForm({
     const res = await fetch("/api/buyer/checkout", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ deliveryMethod }),
+      body: JSON.stringify({
+        deliveryMethod,
+        voucherCode: voucherCode.trim() || undefined,
+        promoCode: promoCode.trim() || undefined,
+      }),
     });
     const data = await res.json();
     setConfirming(false);
@@ -101,6 +125,8 @@ export function CheckoutForm({
     router.push(`/buyer/orders/${data.data.result.orderId}`);
     router.refresh();
   }
+
+  const { discountBreakdown } = preview;
 
   return (
     <div className="grid max-w-4xl gap-6 lg:grid-cols-2">
@@ -144,6 +170,49 @@ export function CheckoutForm({
                 </SelectContent>
               </Select>
             </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Discount codes</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="space-y-1">
+              <Label htmlFor="voucher-code">Voucher code</Label>
+              <Input
+                id="voucher-code"
+                placeholder="e.g. SAVE10"
+                value={voucherCode}
+                onChange={(e) => setVoucherCode(e.target.value.toUpperCase())}
+                disabled={loading}
+                className="font-mono uppercase"
+              />
+              {discountBreakdown.errors.voucher && (
+                <p className="text-destructive text-xs">
+                  {discountBreakdown.errors.voucher}
+                </p>
+              )}
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="promo-code">Promo code</Label>
+              <Input
+                id="promo-code"
+                placeholder="e.g. WELCOME50K"
+                value={promoCode}
+                onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                disabled={loading}
+                className="font-mono uppercase"
+              />
+              {discountBreakdown.errors.promo && (
+                <p className="text-destructive text-xs">
+                  {discountBreakdown.errors.promo}
+                </p>
+              )}
+            </div>
+            <p className="text-muted-foreground text-xs">
+              You may apply one voucher and one promo per checkout.
+            </p>
           </CardContent>
         </Card>
 

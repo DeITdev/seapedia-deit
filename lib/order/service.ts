@@ -7,6 +7,7 @@ import { getBuyerAddress } from "@/lib/address/service";
 import { calculateCheckoutSummary, type CheckoutSummary } from "@/lib/checkout/calculate";
 import { getCartSummary } from "@/lib/cart/service";
 import { ORDER_STATUS_LABELS } from "@/lib/constants/order";
+import { resolveCheckoutDiscounts, type DiscountBreakdown } from "@/lib/discount/service";
 import { db } from "@/lib/db";
 import { getOrCreateWallet } from "@/lib/wallet/service";
 import type { CheckoutInput } from "@/lib/validation/checkout";
@@ -49,6 +50,10 @@ export interface OrderDetail {
   postalCode: string;
   subtotal: number;
   discount: number;
+  voucherDiscount: number;
+  promoDiscount: number;
+  voucherCode: string | null;
+  promoCode: string | null;
   deliveryFee: number;
   ppn: number;
   finalTotal: number;
@@ -62,10 +67,77 @@ export interface CheckoutPreview {
   address: NonNullable<Awaited<ReturnType<typeof getBuyerAddress>>>;
   walletBalance: number;
   summary: CheckoutSummary;
+  discountBreakdown: DiscountBreakdown;
   canCheckout: boolean;
 }
 
-async function loadCheckoutContext(userId: string, deliveryMethod: DeliveryMethod) {
+function mapOrderDetail(order: {
+  id: string;
+  status: OrderStatus;
+  deliveryMethod: DeliveryMethod;
+  recipientName: string;
+  phone: string;
+  street: string;
+  city: string;
+  province: string;
+  postalCode: string;
+  subtotal: number;
+  discount: number;
+  voucherDiscount: number;
+  promoDiscount: number;
+  voucherCode: string | null;
+  promoCode: string | null;
+  deliveryFee: number;
+  ppn: number;
+  finalTotal: number;
+  createdAt: Date;
+  store: { name: string };
+  items: Array<{
+    productId: string;
+    productName: string;
+    unitPrice: number;
+    quantity: number;
+  }>;
+  statusHistory: Array<{ status: OrderStatus; createdAt: Date }>;
+}): OrderDetail {
+  return {
+    id: order.id,
+    storeName: order.store.name,
+    status: order.status,
+    statusLabel: ORDER_STATUS_LABELS[order.status],
+    deliveryMethod: order.deliveryMethod,
+    recipientName: order.recipientName,
+    phone: order.phone,
+    street: order.street,
+    city: order.city,
+    province: order.province,
+    postalCode: order.postalCode,
+    subtotal: order.subtotal,
+    discount: order.discount,
+    voucherDiscount: order.voucherDiscount,
+    promoDiscount: order.promoDiscount,
+    voucherCode: order.voucherCode,
+    promoCode: order.promoCode,
+    deliveryFee: order.deliveryFee,
+    ppn: order.ppn,
+    finalTotal: order.finalTotal,
+    items: order.items.map((item) => ({
+      productId: item.productId,
+      productName: item.productName,
+      unitPrice: item.unitPrice,
+      quantity: item.quantity,
+      lineTotal: item.unitPrice * item.quantity,
+    })),
+    statusHistory: order.statusHistory.map((entry) => ({
+      status: entry.status,
+      statusLabel: ORDER_STATUS_LABELS[entry.status],
+      createdAt: entry.createdAt.toISOString(),
+    })),
+    createdAt: order.createdAt.toISOString(),
+  };
+}
+
+async function loadCheckoutContext(userId: string, input: CheckoutInput) {
   const cart = await getCartSummary(userId);
 
   if (cart.items.length === 0) {
@@ -82,38 +154,49 @@ async function loadCheckoutContext(userId: string, deliveryMethod: DeliveryMetho
   }
 
   const wallet = await getOrCreateWallet(userId);
-  const summary = calculateCheckoutSummary(cart.subtotal, deliveryMethod, 0);
+  const discountBreakdown = await resolveCheckoutDiscounts(
+    cart.subtotal,
+    input.voucherCode,
+    input.promoCode,
+  );
 
-  return { cart, address, wallet, summary };
+  const summary = calculateCheckoutSummary(
+    cart.subtotal,
+    input.deliveryMethod,
+    discountBreakdown.totalDiscount,
+    {
+      voucherDiscount: discountBreakdown.voucherDiscount,
+      promoDiscount: discountBreakdown.promoDiscount,
+      voucherCode: discountBreakdown.voucher?.code,
+      promoCode: discountBreakdown.promo?.code,
+    },
+  );
+
+  return { cart, address, wallet, summary, discountBreakdown };
 }
 
 export async function previewCheckout(
   userId: string,
   input: CheckoutInput,
 ): Promise<CheckoutPreview> {
-  const { cart, address, wallet, summary } = await loadCheckoutContext(
-    userId,
-    input.deliveryMethod,
-  );
+  const { cart, address, wallet, summary, discountBreakdown } =
+    await loadCheckoutContext(userId, input);
 
   return {
     cart,
     address,
     walletBalance: wallet.balance,
     summary,
+    discountBreakdown,
     canCheckout: wallet.balance >= summary.finalTotal,
   };
 }
 
-export async function createOrder(userId: string, input: CheckoutInput): Promise<{ orderId: string }> {
-  const { address, wallet, summary } = await loadCheckoutContext(
-    userId,
-    input.deliveryMethod,
-  );
-
-  if (wallet.balance < summary.finalTotal) {
-    throw new ApiError(400, "Insufficient wallet balance for checkout.");
-  }
+export async function createOrder(
+  userId: string,
+  input: CheckoutInput,
+): Promise<{ orderId: string }> {
+  const { address, wallet } = await loadCheckoutContext(userId, input);
 
   const cartRecord = await db.cart.findUnique({
     where: { userId },
@@ -129,6 +212,57 @@ export async function createOrder(userId: string, input: CheckoutInput): Promise
   }
 
   const orderId = await db.$transaction(async (tx) => {
+    const discountBreakdown = await resolveCheckoutDiscounts(
+      cartRecord.items.reduce(
+        (sum, item) => sum + item.product.price * item.quantity,
+        0,
+      ),
+      input.voucherCode,
+      input.promoCode,
+      tx,
+    );
+
+    if (input.voucherCode && discountBreakdown.errors.voucher) {
+      throw new ApiError(400, discountBreakdown.errors.voucher);
+    }
+    if (input.promoCode && discountBreakdown.errors.promo) {
+      throw new ApiError(400, discountBreakdown.errors.promo);
+    }
+
+    const subtotal = cartRecord.items.reduce(
+      (sum, item) => sum + item.product.price * item.quantity,
+      0,
+    );
+
+    const summary = calculateCheckoutSummary(
+      subtotal,
+      input.deliveryMethod,
+      discountBreakdown.totalDiscount,
+      {
+        voucherDiscount: discountBreakdown.voucherDiscount,
+        promoDiscount: discountBreakdown.promoDiscount,
+        voucherCode: discountBreakdown.voucher?.code,
+        promoCode: discountBreakdown.promo?.code,
+      },
+    );
+
+    if (wallet.balance < summary.finalTotal) {
+      throw new ApiError(400, "Insufficient wallet balance for checkout.");
+    }
+
+    if (discountBreakdown.voucher) {
+      const updated = await tx.voucher.updateMany({
+        where: {
+          id: discountBreakdown.voucher.id,
+          remainingUsage: { gt: 0 },
+        },
+        data: { remainingUsage: { decrement: 1 } },
+      });
+      if (updated.count !== 1) {
+        throw new ApiError(400, "This voucher has no remaining uses.");
+      }
+    }
+
     for (const item of cartRecord.items) {
       const updated = await tx.product.update({
         where: { id: item.productId },
@@ -162,6 +296,12 @@ export async function createOrder(userId: string, input: CheckoutInput): Promise
         postalCode: address.postalCode,
         subtotal: summary.subtotal,
         discount: summary.discount,
+        voucherDiscount: summary.voucherDiscount,
+        promoDiscount: summary.promoDiscount,
+        voucherId: discountBreakdown.voucher?.id ?? null,
+        voucherCode: discountBreakdown.voucher?.code ?? null,
+        promoId: discountBreakdown.promo?.id ?? null,
+        promoCode: discountBreakdown.promo?.code ?? null,
         deliveryFee: summary.deliveryFee,
         ppn: summary.ppn,
         finalTotal: summary.finalTotal,
@@ -240,37 +380,7 @@ export async function getBuyerOrderDetail(
     throw new ApiError(404, "Order not found.");
   }
 
-  return {
-    id: order.id,
-    storeName: order.store.name,
-    status: order.status,
-    statusLabel: ORDER_STATUS_LABELS[order.status],
-    deliveryMethod: order.deliveryMethod,
-    recipientName: order.recipientName,
-    phone: order.phone,
-    street: order.street,
-    city: order.city,
-    province: order.province,
-    postalCode: order.postalCode,
-    subtotal: order.subtotal,
-    discount: order.discount,
-    deliveryFee: order.deliveryFee,
-    ppn: order.ppn,
-    finalTotal: order.finalTotal,
-    items: order.items.map((item) => ({
-      productId: item.productId,
-      productName: item.productName,
-      unitPrice: item.unitPrice,
-      quantity: item.quantity,
-      lineTotal: item.unitPrice * item.quantity,
-    })),
-    statusHistory: order.statusHistory.map((entry) => ({
-      status: entry.status,
-      statusLabel: ORDER_STATUS_LABELS[entry.status],
-      createdAt: entry.createdAt.toISOString(),
-    })),
-    createdAt: order.createdAt.toISOString(),
-  };
+  return mapOrderDetail(order);
 }
 
 export type SellerOrderListItem = OrderListItem & { buyerUsername: string };
@@ -303,3 +413,70 @@ export async function listSellerOrders(sellerId: string): Promise<SellerOrderLis
   }));
 }
 
+export type SellerOrderDetail = OrderDetail & { buyerUsername: string };
+
+export async function getSellerOrderDetail(
+  sellerId: string,
+  orderId: string,
+): Promise<SellerOrderDetail> {
+  const store = await db.store.findUnique({ where: { sellerId } });
+  if (!store) {
+    throw new ApiError(404, "Order not found.");
+  }
+
+  const order = await db.order.findFirst({
+    where: { id: orderId, storeId: store.id },
+    include: {
+      store: { select: { name: true } },
+      items: true,
+      statusHistory: { orderBy: { createdAt: "asc" } },
+      buyer: { select: { username: true } },
+    },
+  });
+
+  if (!order) {
+    throw new ApiError(404, "Order not found.");
+  }
+
+  return {
+    ...mapOrderDetail(order),
+    buyerUsername: order.buyer.username,
+  };
+}
+
+export async function processSellerOrder(
+  sellerId: string,
+  orderId: string,
+): Promise<{ status: OrderStatus; statusLabel: string }> {
+  const store = await db.store.findUnique({ where: { sellerId } });
+  if (!store) {
+    throw new ApiError(404, "Order not found.");
+  }
+
+  const order = await db.order.findFirst({
+    where: { id: orderId, storeId: store.id },
+  });
+
+  if (!order) {
+    throw new ApiError(404, "Order not found.");
+  }
+
+  if (order.status !== "SEDANG_DIKEMAS") {
+    throw new ApiError(400, "Only orders being packed can be processed.");
+  }
+
+  const updated = await db.order.update({
+    where: { id: orderId },
+    data: {
+      status: "MENUNGGU_PENGIRIM",
+      statusHistory: {
+        create: { status: "MENUNGGU_PENGIRIM" },
+      },
+    },
+  });
+
+  return {
+    status: updated.status,
+    statusLabel: ORDER_STATUS_LABELS[updated.status],
+  };
+}

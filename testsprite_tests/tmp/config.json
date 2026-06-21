@@ -1,0 +1,25 @@
+{
+  "status": "commited",
+  "type": "frontend",
+  "scope": "codebase",
+  "localEndpoint": "http://localhost:3000",
+  "loginUser": "buyer1",
+  "loginPassword": "Buyer123!",
+  "executionArgs": {
+    "projectName": "seapedia-deit",
+    "projectPath": "/Users/Danar/Project/seapedia-deit",
+    "testIds": [
+      "TC001",
+      "TC018",
+      "TC025",
+      "TC004",
+      "TC031"
+    ],
+    "additionalInstruction": "Use username (not email) for login. Demo accounts: buyer1/Buyer123!, seller1/Seller123!. Sign-in page is /sign-in (not /login). Voucher code SAVE10 and promo WELCOME50K are valid seed codes. Checkout requires items in cart first — add a product from Rumah Kopi Nusantara before checkout tests.",
+    "envs": {
+      "API_KEY": "sk-user-gUCjoiavyDOWfzfaQaAn9A7rdwlhW8Yayhr2JpMUPIoKOy2CG3YjHH1aINPZJlSYV7566Z3RhYymIwu6ot-i9vx8qQppIkpoBM0Kr_2yeEqNJCt4YFDvzKfOEhRszOX8hbU"
+    }
+  },
+  "serverPort": 63859,
+  "proxy": "http://59063a95-c1ad-4301-8b55-caa298624a6d:jZhazCMSAyqYJdfTmMWu9EuHDldJBFK9@tun.testsprite.com:8080"
+}

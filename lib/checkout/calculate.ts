@@ -6,6 +6,10 @@ import { roundRupiah } from "@/lib/money";
 export interface CheckoutSummary {
   subtotal: number;
   discount: number;
+  voucherDiscount: number;
+  promoDiscount: number;
+  voucherCode?: string;
+  promoCode?: string;
   taxableBase: number;
   ppn: number;
   deliveryFee: number;
@@ -17,6 +21,12 @@ export function calculateCheckoutSummary(
   subtotal: number,
   deliveryMethod: DeliveryMethod,
   discount = 0,
+  options?: {
+    voucherDiscount?: number;
+    promoDiscount?: number;
+    voucherCode?: string;
+    promoCode?: string;
+  },
 ): CheckoutSummary {
   const cappedDiscount = Math.min(Math.max(0, discount), subtotal);
   const taxableBase = subtotal - cappedDiscount;
@@ -27,6 +37,10 @@ export function calculateCheckoutSummary(
   return {
     subtotal,
     discount: cappedDiscount,
+    voucherDiscount: options?.voucherDiscount ?? 0,
+    promoDiscount: options?.promoDiscount ?? 0,
+    voucherCode: options?.voucherCode,
+    promoCode: options?.promoCode,
     taxableBase,
     ppn,
     deliveryFee,

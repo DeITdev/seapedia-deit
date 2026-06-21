@@ -170,7 +170,101 @@ async function main() {
     });
   }
 
-  console.log(`Seeded ${accounts.length} accounts, demo reviews, seller1 store/products, buyer1 wallet/address.`);
+  const now = new Date();
+  const in90Days = new Date(now);
+  in90Days.setDate(in90Days.getDate() + 90);
+  const yesterday = new Date(now);
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  const seedVouchers = [
+    {
+      code: "SAVE10",
+      discountType: "PERCENTAGE" as const,
+      discountValue: 10,
+      maxDiscount: 50000,
+      remainingUsage: 10,
+      expiresAt: in90Days,
+    },
+    {
+      code: "FLAT25K",
+      discountType: "FIXED" as const,
+      discountValue: 25000,
+      maxDiscount: null,
+      remainingUsage: 5,
+      expiresAt: in90Days,
+    },
+    {
+      code: "USEDUP",
+      discountType: "FIXED" as const,
+      discountValue: 10000,
+      maxDiscount: null,
+      remainingUsage: 0,
+      expiresAt: in90Days,
+    },
+    {
+      code: "EXPIRED10",
+      discountType: "PERCENTAGE" as const,
+      discountValue: 10,
+      maxDiscount: null,
+      remainingUsage: 5,
+      expiresAt: yesterday,
+    },
+  ];
+
+  for (const voucher of seedVouchers) {
+    await prisma.voucher.upsert({
+      where: { code: voucher.code },
+      update: {
+        discountType: voucher.discountType,
+        discountValue: voucher.discountValue,
+        maxDiscount: voucher.maxDiscount,
+        remainingUsage: voucher.remainingUsage,
+        expiresAt: voucher.expiresAt,
+      },
+      create: voucher,
+    });
+  }
+
+  const seedPromos = [
+    {
+      code: "WELCOME50K",
+      discountType: "FIXED" as const,
+      discountValue: 50000,
+      maxDiscount: null,
+      expiresAt: in90Days,
+    },
+    {
+      code: "PROMO15",
+      discountType: "PERCENTAGE" as const,
+      discountValue: 15,
+      maxDiscount: 75000,
+      expiresAt: in90Days,
+    },
+    {
+      code: "OLDPROMO",
+      discountType: "FIXED" as const,
+      discountValue: 20000,
+      maxDiscount: null,
+      expiresAt: yesterday,
+    },
+  ];
+
+  for (const promo of seedPromos) {
+    await prisma.promo.upsert({
+      where: { code: promo.code },
+      update: {
+        discountType: promo.discountType,
+        discountValue: promo.discountValue,
+        maxDiscount: promo.maxDiscount,
+        expiresAt: promo.expiresAt,
+      },
+      create: promo,
+    });
+  }
+
+  console.log(
+    `Seeded ${accounts.length} accounts, demo reviews, seller1 store/products, buyer1 wallet/address, vouchers and promos.`,
+  );
 }
 
 main()

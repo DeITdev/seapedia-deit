@@ -11,16 +11,17 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { requirePageRole } from "@/lib/auth/page-guards";
 import { getCartItemCount } from "@/lib/cart/service";
+import { getBuyerSpendingSummary } from "@/lib/report/service";
 import { getWalletBalance } from "@/lib/wallet/service";
 
 export default async function BuyerPage() {
   const session = await requirePageRole("BUYER");
-  const [balance, cartCount] = await Promise.all([
+  const [balance, cartCount, spending] = await Promise.all([
     getWalletBalance(session.userId),
     getCartItemCount(session.userId),
+    getBuyerSpendingSummary(session.userId),
   ]);
 
   return (
@@ -29,11 +30,18 @@ export default async function BuyerPage() {
       description="Browse, buy, and track your orders."
       role="BUYER"
     >
-      <BalanceCard
-        label="Buyer wallet"
-        amount={balance}
-        note="Top up and pay for orders at checkout."
-      />
+      <div className="grid gap-4 sm:grid-cols-2">
+        <BalanceCard
+          label="Buyer wallet"
+          amount={balance}
+          note="Top up and pay for orders at checkout."
+        />
+        <BalanceCard
+          label="Total spending"
+          amount={spending.totalSpending}
+          note={`${spending.orderCount} order${spending.orderCount === 1 ? "" : "s"} placed (excl. returns).`}
+        />
+      </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Card>
@@ -105,19 +113,20 @@ export default async function BuyerPage() {
           </CardContent>
         </Card>
 
-        <Card className="opacity-60">
+        <Card>
           <CardHeader>
-            <div className="flex items-center justify-between">
-              <span className="bg-primary/10 text-primary flex size-10 items-center justify-center rounded-lg">
-                <Ticket className="size-5" />
-              </span>
-              <Badge variant="secondary">Level 6</Badge>
+            <div className="bg-primary/10 text-primary flex size-10 items-center justify-center rounded-lg">
+              <Ticket className="size-5" />
             </div>
-            <CardTitle className="mt-2 text-base">Vouchers</CardTitle>
-            <CardDescription>Apply discount vouchers at checkout.</CardDescription>
+            <CardTitle className="mt-2 text-base">Discount codes</CardTitle>
+            <CardDescription>
+              Apply voucher and promo codes at checkout for savings.
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground text-xs">Coming in Level 6</p>
+            <Button asChild variant="outline" size="sm">
+              <Link href="/buyer/checkout">Apply at checkout</Link>
+            </Button>
           </CardContent>
         </Card>
       </div>

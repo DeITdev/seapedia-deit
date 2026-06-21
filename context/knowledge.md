@@ -57,6 +57,13 @@ Delivery fee must differ by method (enforced). Values are configurable defaults;
 - Vouchers with no remaining usage cannot be used.
 - Invalid/expired/exhausted codes are rejected with a clear error message; the rest of the checkout still computes.
 
+## Reports (Level 4)
+
+- **Buyer total spending** = sum of `finalTotal` for orders where `status != DIKEMBALIKAN`.
+- **Seller revenue** = sum of `(subtotal − discount)` (taxable goods value) for orders where `status != DIKEMBALIKAN`.
+- **Order counts** exclude returned (`Dikembalikan`) orders so reports stay accurate when overdue handling is added in Level 6.
+- Seller **pending** count = orders with status `Sedang Dikemas`; **processed** = all other non-returned statuses.
+
 ## Order Lifecycle and Transitions
 
 Main statuses (must stay visible): `Sedang Dikemas` → `Menunggu Pengirim` → `Sedang Dikirim` → `Pesanan Selesai`, with `Dikembalikan` as the overdue terminal status.

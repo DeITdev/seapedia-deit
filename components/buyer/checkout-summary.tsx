@@ -14,16 +14,44 @@ export function CheckoutSummaryCard({
   canCheckout: boolean;
   showWallet?: boolean;
 }) {
+  const hasSplitDiscount =
+    summary.voucherDiscount > 0 || summary.promoDiscount > 0;
+
   return (
     <div className="space-y-2 text-sm">
       <div className="flex justify-between">
         <span className="text-muted-foreground">Subtotal</span>
         <span>{formatIDR(summary.subtotal)}</span>
       </div>
-      <div className="flex justify-between">
-        <span className="text-muted-foreground">Discount</span>
-        <span>{formatIDR(summary.discount)}</span>
-      </div>
+
+      {hasSplitDiscount ? (
+        <>
+          {summary.voucherDiscount > 0 && (
+            <div className="flex justify-between text-success">
+              <span>
+                Voucher
+                {summary.voucherCode ? ` (${summary.voucherCode})` : ""}
+              </span>
+              <span>−{formatIDR(summary.voucherDiscount)}</span>
+            </div>
+          )}
+          {summary.promoDiscount > 0 && (
+            <div className="flex justify-between text-success">
+              <span>
+                Promo
+                {summary.promoCode ? ` (${summary.promoCode})` : ""}
+              </span>
+              <span>−{formatIDR(summary.promoDiscount)}</span>
+            </div>
+          )}
+        </>
+      ) : (
+        <div className="flex justify-between">
+          <span className="text-muted-foreground">Discount</span>
+          <span>{formatIDR(summary.discount)}</span>
+        </div>
+      )}
+
       <div className="flex justify-between">
         <span className="text-muted-foreground">
           Delivery ({DELIVERY_METHOD_LABELS[summary.deliveryMethod]})

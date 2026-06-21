@@ -1,0 +1,184 @@
+{
+  "tech_stack": [
+    "TypeScript",
+    "Next.js 16 (App Router, Turbopack)",
+    "React 19",
+    "Tailwind CSS v4",
+    "shadcn/ui",
+    "Prisma 7 + PostgreSQL (Supabase)",
+    "JWT session auth (jose + bcryptjs)",
+    "Zod validation"
+  ],
+  "features": [
+    {
+      "name": "Public marketplace catalog",
+      "description": "Browse products from seller stores on the public catalog and product detail pages.",
+      "files": [
+        "app/(public)/page.tsx",
+        "app/(public)/products/page.tsx",
+        "app/(public)/products/[productId]/page.tsx",
+        "app/api/products/route.ts",
+        "app/api/products/[productId]/route.ts",
+        "components/marketplace/product-card.tsx",
+        "components/marketplace/catalog-filters.tsx",
+        "lib/product/service.ts"
+      ]
+    },
+    {
+      "name": "Authentication and multi-role sessions",
+      "description": "Register, sign in, sign out, and switch active role (buyer, seller, driver, admin) via JWT cookie session.",
+      "files": [
+        "app/(public)/sign-in/page.tsx",
+        "app/(public)/sign-up/page.tsx",
+        "app/(public)/select-role/page.tsx",
+        "app/api/auth/login/route.ts",
+        "app/api/auth/register/route.ts",
+        "app/api/auth/logout/route.ts",
+        "app/api/auth/me/route.ts",
+        "app/api/auth/active-role/route.ts",
+        "components/auth/sign-in-form.tsx",
+        "components/auth/sign-up-form.tsx",
+        "components/auth/role-selection.tsx",
+        "lib/auth/service.ts",
+        "lib/auth/session.ts",
+        "lib/auth/jwt.ts",
+        "lib/auth/guards.ts",
+        "lib/auth/page-guards.ts"
+      ]
+    },
+    {
+      "name": "Application reviews",
+      "description": "Public reviews with star ratings and comments on the landing page.",
+      "files": [
+        "app/api/reviews/route.ts",
+        "components/reviews/review-section.tsx",
+        "components/reviews/review-form.tsx",
+        "components/reviews/star-picker.tsx",
+        "components/reviews/star-rating.tsx"
+      ]
+    },
+    {
+      "name": "Seller store and product management",
+      "description": "Sellers create a store, add/edit/delete products, and manage inventory.",
+      "files": [
+        "app/(dashboard)/seller/page.tsx",
+        "app/(dashboard)/seller/store/page.tsx",
+        "app/(dashboard)/seller/products/page.tsx",
+        "app/(dashboard)/seller/products/new/page.tsx",
+        "app/(dashboard)/seller/products/[productId]/edit/page.tsx",
+        "app/api/seller/store/route.ts",
+        "app/api/seller/products/route.ts",
+        "app/api/seller/products/[productId]/route.ts",
+        "components/seller/store-form.tsx",
+        "components/seller/product-form.tsx",
+        "components/seller/product-list.tsx",
+        "lib/store/service.ts",
+        "lib/validation/store.ts",
+        "lib/validation/product.ts"
+      ]
+    },
+    {
+      "name": "Buyer wallet and address",
+      "description": "Buyers top up wallet balance and maintain a single delivery address.",
+      "files": [
+        "app/(dashboard)/buyer/wallet/page.tsx",
+        "app/(dashboard)/buyer/address/page.tsx",
+        "app/api/buyer/wallet/route.ts",
+        "app/api/buyer/address/route.ts",
+        "components/buyer/wallet-top-up-form.tsx",
+        "components/buyer/wallet-transaction-list.tsx",
+        "components/buyer/address-form.tsx",
+        "lib/wallet/service.ts",
+        "lib/address/service.ts"
+      ]
+    },
+    {
+      "name": "Shopping cart with single-store rule",
+      "description": "Buyers add products to cart; cart enforces items from one store only with conflict dialog.",
+      "files": [
+        "app/(dashboard)/buyer/cart/page.tsx",
+        "app/api/buyer/cart/route.ts",
+        "app/api/buyer/cart/items/route.ts",
+        "app/api/buyer/cart/items/[productId]/route.ts",
+        "components/buyer/cart-view.tsx",
+        "components/buyer/add-to-cart-button.tsx",
+        "lib/cart/service.ts",
+        "lib/validation/cart.ts"
+      ]
+    },
+    {
+      "name": "Checkout with tax, delivery, and discounts",
+      "description": "Checkout preview and place order with PPN, delivery fee, optional voucher and promo codes, wallet debit, and stock decrement.",
+      "files": [
+        "app/(dashboard)/buyer/checkout/page.tsx",
+        "app/api/buyer/checkout/route.ts",
+        "app/api/buyer/checkout/preview/route.ts",
+        "components/buyer/checkout-form.tsx",
+        "components/buyer/checkout-summary.tsx",
+        "lib/checkout/calculate.ts",
+        "lib/order/service.ts",
+        "lib/validation/checkout.ts"
+      ]
+    },
+    {
+      "name": "Voucher and promo discounts",
+      "description": "Admin-managed vouchers and promos applied at checkout; one voucher plus one promo per order with usage limits.",
+      "files": [
+        "app/api/admin/vouchers/route.ts",
+        "app/api/admin/vouchers/[id]/route.ts",
+        "app/api/admin/promos/route.ts",
+        "app/api/admin/promos/[id]/route.ts",
+        "lib/discount/service.ts",
+        "lib/discount/calculate.ts",
+        "lib/validation/discount.ts"
+      ]
+    },
+    {
+      "name": "Buyer orders and spending reports",
+      "description": "Buyers view order history, order detail with status timeline and discount breakdown, and spending summary on dashboard.",
+      "files": [
+        "app/(dashboard)/buyer/page.tsx",
+        "app/(dashboard)/buyer/orders/page.tsx",
+        "app/(dashboard)/buyer/orders/[orderId]/page.tsx",
+        "app/api/buyer/orders/route.ts",
+        "app/api/buyer/orders/[orderId]/route.ts",
+        "app/api/buyer/reports/spending/route.ts",
+        "components/buyer/order-status-timeline.tsx",
+        "components/buyer/order-status-badge.tsx",
+        "lib/report/service.ts"
+      ]
+    },
+    {
+      "name": "Seller order processing and income reports",
+      "description": "Sellers view incoming orders, process orders to packing status, see order detail timeline, and revenue summary.",
+      "files": [
+        "app/(dashboard)/seller/page.tsx",
+        "app/(dashboard)/seller/orders/page.tsx",
+        "app/(dashboard)/seller/orders/[orderId]/page.tsx",
+        "app/api/seller/orders/route.ts",
+        "app/api/seller/orders/[orderId]/route.ts",
+        "app/api/seller/orders/[orderId]/process/route.ts",
+        "app/api/seller/reports/income/route.ts",
+        "components/seller/process-order-button.tsx",
+        "components/buyer/order-status-timeline.tsx"
+      ]
+    },
+    {
+      "name": "Role dashboards and shared UI shell",
+      "description": "Dashboard shells for admin, seller, buyer, and driver with navbar, theme toggle, and mobile navigation.",
+      "files": [
+        "app/(dashboard)/layout.tsx",
+        "app/(dashboard)/admin/page.tsx",
+        "app/(dashboard)/driver/page.tsx",
+        "app/(dashboard)/dashboard/page.tsx",
+        "components/dashboard/dashboard-shell.tsx",
+        "components/site/navbar.tsx",
+        "components/site/navbar-client.tsx",
+        "components/site/mobile-nav.tsx",
+        "components/site/user-menu.tsx",
+        "components/theme-toggle.tsx",
+        "components/theme-provider.tsx"
+      ]
+    }
+  ]
+}

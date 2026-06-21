@@ -7,11 +7,12 @@ Update this file whenever the current phase, active feature, or implementation s
 - **Foundation + Level 1 — COMPLETE** (public marketplace, multi-role auth with active-role selection, public application reviews, reusable UI + role dashboard shells).
 - **Level 2 — COMPLETE** (seller store management, product CRUD, DB-backed public catalog).
 - **Level 3 — COMPLETE** (buyer wallet, delivery address, cart with single-store rule, checkout with tax/delivery fees, orders).
-- Next phase target: **Level 4 — Discounts and Seller Order Processing**.
+- **Level 4 — COMPLETE** (voucher/promo discounts at checkout, seller order processing, buyer/seller reports).
+- Next phase target: **Level 5 — Delivery and Driver Workflow**.
 
 ## Current Goal
 
-- Begin Level 4: Voucher/Promo discounts at checkout and seller order processing (`Sedang Dikemas` → `Menunggu Pengirim`).
+- Begin Level 5: driver delivery jobs, take job, confirm completion, and earnings.
 
 ## Completed
 
@@ -50,9 +51,21 @@ Update this file whenever the current phase, active feature, or implementation s
 - Buyer APIs: `/api/buyer/wallet`, `/api/buyer/address`, `/api/buyer/cart`, `/api/buyer/cart/items`, `/api/buyer/checkout/preview`, `/api/buyer/checkout`, `/api/buyer/orders`.
 - Seller API: `GET /api/seller/orders` (incoming list).
 - Buyer UI: `/buyer` hub, `/buyer/wallet`, `/buyer/address`, `/buyer/cart`, `/buyer/checkout`, `/buyer/orders`, `/buyer/orders/[orderId]`.
-- Seller UI: `/seller/orders` (read-only incoming list; processing stays Level 4).
+- Seller UI: `/seller/orders` (read-only incoming list at Level 3).
 - Public product detail: `AddToCartButton` with store-conflict dialog.
 - Docs: single-store + address model notes in `knowledge.md` and README.
+
+### Level 4
+- Schema: `Voucher`, `Promo`, `DiscountType`; `Order` extended with `voucherDiscount`, `promoDiscount`, `voucherId`/`promoId`, code snapshots. Migration at `prisma/migrations/20260619140107_level4_discounts_seller_processing`.
+- Seed: demo vouchers (`SAVE10`, `FLAT25K`, `USEDUP`, `EXPIRED10`) and promos (`WELCOME50K`, `PROMO15`, `OLDPROMO`).
+- Services: `lib/discount/calculate.ts`, `lib/discount/service.ts`, `lib/report/service.ts`; checkout/order services updated for discount validation and atomic voucher usage decrement.
+- Validation: `lib/validation/discount.ts`; checkout schema accepts optional `voucherCode` + `promoCode`.
+- Admin APIs: `POST/GET /api/admin/vouchers`, `GET /api/admin/vouchers/[id]`, `POST/GET /api/admin/promos`, `GET /api/admin/promos/[id]` (API-only; Admin UI deferred to Level 6).
+- Seller APIs: `GET /api/seller/orders/[orderId]`, `POST /api/seller/orders/[orderId]/process`.
+- Report APIs: `GET /api/buyer/reports/spending`, `GET /api/seller/reports/income`.
+- Buyer UI: checkout discount code inputs with split summary lines; spending summary on `/buyer`; order detail shows voucher/promo breakdown.
+- Seller UI: `/seller/orders/[orderId]` with process button + timeline; order list tabs (All / Sedang Dikemas / Processed); revenue summary on `/seller`.
+- Shared: `OrderStatusTimeline` component extracted for buyer and seller order detail pages.
 
 ## In Progress
 
@@ -60,14 +73,14 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Next Up
 
-- Level 4: Voucher/Promo discounts at checkout and seller order processing.
+- Level 5: Driver delivery jobs, take job, confirm completion, earnings.
 
-## Verification (Foundation + Level 1 + Level 2 + Level 3)
+## Verification (Foundation through Level 4)
 
 - `npm run build` (Turbopack) and `npm run lint` both pass clean.
-- `npx prisma generate` succeeds; migrations committed through Level 3.
-- Run `npm run db:deploy` and `npm run db:seed` after configuring `.env` — seeds demo accounts, reviews, seller1 store + products, buyer1 wallet/address.
-- Manual E2E: `buyer1` adds product → checkout → order history; `seller1` sees incoming order; stock and wallet update correctly.
+- `npx prisma generate` succeeds; migrations committed through Level 4.
+- Run `npm run db:deploy` and `npm run db:seed` after configuring `.env`.
+- Manual E2E: `buyer1` checkout with `SAVE10` + `WELCOME50K` → split discounts + correct total; `seller1` processes order → `Menunggu Pengirim`; spending/revenue reports update.
 
 ## Open Questions
 
@@ -83,6 +96,7 @@ Update this file whenever the current phase, active feature, or implementation s
 - Time simulation via a controllable system clock plus an Admin-triggered "simulate next day" action for overdue handling (later level).
 - Architect for all 7 levels; build incrementally starting at Level 1.
 - Buyer delivery address: single address per buyer at Level 3; order snapshots preserve history; multiple addresses deferred to a later level.
+- Discount combination: one voucher + one promo per checkout; PPN applied after discount on goods only.
 
 ## Session Notes
 
@@ -91,3 +105,4 @@ Update this file whenever the current phase, active feature, or implementation s
 - The reference repo under `repo/` is read-only inspiration and is excluded from `tsconfig` and ESLint.
 - Level 2 product fields follow the COMPFEST brief (no category); store info is shown on product detail only, not a separate store page.
 - Level 3 checkout uses Prisma interactive `$transaction` for stock decrement, wallet debit, order creation, and cart clear.
+- Level 4 voucher usage decrement uses conditional `updateMany` inside the checkout transaction for race safety.

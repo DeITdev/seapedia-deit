@@ -12,12 +12,16 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { requirePageRole } from "@/lib/auth/page-guards";
+import { getSellerIncomeSummary } from "@/lib/report/service";
 import { getStoreBySellerIdWithProductCount } from "@/lib/store/service";
 
 export default async function SellerPage() {
   const session = await requirePageRole("SELLER");
 
-  const store = await getStoreBySellerIdWithProductCount(session.userId);
+  const [store, income] = await Promise.all([
+    getStoreBySellerIdWithProductCount(session.userId),
+    getSellerIncomeSummary(session.userId),
+  ]);
 
   return (
     <DashboardShell
@@ -25,7 +29,11 @@ export default async function SellerPage() {
       description="Manage your store, products, and orders."
       role="SELLER"
     >
-      <BalanceCard label="Seller earnings" note="Earnings tracking arrives in a later level." />
+      <BalanceCard
+        label="Seller revenue"
+        amount={income.revenue}
+        note={`${income.orderCount} order${income.orderCount === 1 ? "" : "s"} · ${income.pendingCount} pending · ${income.processedCount} processed`}
+      />
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Card>
@@ -72,7 +80,11 @@ export default async function SellerPage() {
               <ClipboardList className="size-5" />
             </div>
             <CardTitle className="mt-2 text-base">Incoming orders</CardTitle>
-            <CardDescription>View orders from buyers at your store.</CardDescription>
+            <CardDescription>
+              {income.pendingCount > 0
+                ? `${income.pendingCount} order(s) waiting to be packed`
+                : "View orders from buyers at your store."}
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <Button asChild variant="outline" size="sm" disabled={!store}>
@@ -81,16 +93,20 @@ export default async function SellerPage() {
           </CardContent>
         </Card>
 
-        <Card className="opacity-60">
+        <Card>
           <CardHeader>
             <div className="bg-primary/10 text-primary flex size-10 items-center justify-center rounded-lg">
               <Wallet className="size-5" />
             </div>
             <CardTitle className="mt-2 text-base">Earnings</CardTitle>
-            <CardDescription>Track revenue from completed orders.</CardDescription>
+            <CardDescription>
+              Revenue from goods sold (subtotal minus discounts, excl. returns).
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground text-xs">Coming in Level 4</p>
+            <p className="text-muted-foreground text-sm">
+              {income.processedCount} processed order{income.processedCount === 1 ? "" : "s"}
+            </p>
           </CardContent>
         </Card>
       </div>
